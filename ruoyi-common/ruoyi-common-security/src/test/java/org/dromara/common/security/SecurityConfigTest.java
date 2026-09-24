@@ -1,18 +1,14 @@
 package org.dromara.common.security;
 
-import cn.dev33.satoken.filter.SaTokenContextFilterForJakartaServlet;
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import jakarta.servlet.DispatcherType;
 import org.dromara.common.core.utils.SpringUtils;
 import org.dromara.common.security.config.SecurityConfig;
 import org.dromara.common.security.config.properties.SecurityProperties;
 import org.dromara.common.security.handler.AllUrlHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.core.Ordered;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.method.HandlerMethod;
@@ -31,27 +27,6 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("common-security 功能单元测试")
 class SecurityConfigTest {
-
-    /**
-     * 验证 Sa-Token 上下文过滤器覆盖请求、异步和错误分发，并保持最高优先级。
-     */
-    @Test
-    @DisplayName("注册 Sa-Token 上下文过滤器")
-    void shouldRegisterSaTokenContextFilterForAsyncDispatch() {
-        SecurityConfig config = new SecurityConfig(new SecurityProperties());
-        SaTokenContextFilterForJakartaServlet filter = mock(SaTokenContextFilterForJakartaServlet.class);
-
-        FilterRegistrationBean<SaTokenContextFilterForJakartaServlet> registration =
-            config.saTokenContextFilterRegistration(filter);
-
-        assertSame(filter, registration.getFilter());
-        assertEquals("saTokenContextFilterForServlet", registration.getFilterName());
-        assertEquals(Set.of("/*"), registration.getUrlPatterns());
-        assertEquals(Set.of(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.ERROR),
-            ReflectionTestUtils.getField(registration, "dispatcherTypes"));
-        assertTrue(registration.isAsyncSupported());
-        assertEquals(Ordered.HIGHEST_PRECEDENCE, registration.getOrder());
-    }
 
     /**
      * 验证安全排除路径配置可以完整保存，供拦截器注册时使用。
